@@ -66,6 +66,7 @@ let phrase = [];
 let suggestion = null;
 
 let activeVoiceProfile = 1;            // 1: Voz Natural (Estándar), 2: Voz Alternativa (Aguda)
+let neuralAudio = null;                // Audio object for neural TTS online fallback
 
 let isFrontCamera = true;
 let activeStream = null;
@@ -535,12 +536,47 @@ function updatePhraseDisplay() {
     document.getElementById("btn-speak-phrase").disabled = false;
 }
 
-// Mobile-friendly Speech Synthesis with 2 voice models choice
+// Mobile-friendly Speech Synthesis with 2 voice models choice (with neural online upgrade)
 function speakText(text) {
+    if (!text || !text.trim()) return;
+
+    // 1. Cancel previous speech synthesis
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+    }
+
+    // 2. Stop previous neural audio if playing
+    if (neuralAudio) {
+        try {
+            neuralAudio.pause();
+            neuralAudio = null;
+        } catch (e) {
+            console.error("Error pausing previous audio:", e);
+        }
+    }
+
+    // 3. Try neural online voice if online and text length is appropriate
+    if (navigator.onLine && text.length < 200) {
+        // Profile 1 uses Spain accent (es), Profile 2 uses Latin American accent (es-us)
+        const lang = activeVoiceProfile === 1 ? "es" : "es-us";
+        const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${lang}&client=tw-ob&q=${encodeURIComponent(text)}`;
+        
+        neuralAudio = new Audio(ttsUrl);
+        neuralAudio.play().catch(err => {
+            console.warn("Neural audio play failed, falling back to Web Speech API:", err);
+            speakOfflineFallback(text);
+        });
+    } else {
+        // Offline or text too long -> standard Web Speech synthesis fallback
+        speakOfflineFallback(text);
+    }
+}
+
+// Fallback to offline/native browser voice synthesis
+function speakOfflineFallback(text) {
     if (!('speechSynthesis' in window)) return;
     
-    window.speechSynthesis.cancel(); // cancel previous speech
-    const utterance = new SpeechSynthesisUtterance(text); // No lowercasing, so synthesis respects ¿? punctuation prosody
+    const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "es-ES";
     
     const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith("es"));
