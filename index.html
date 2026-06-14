@@ -95,6 +95,19 @@
                 </div>
             </div>
 
+            <!-- Selector de Modelo de Voz -->
+            <div class="voice-selector-card">
+                <span class="hud-label">MODELO DE VOZ</span>
+                <div class="voice-switch">
+                    <button id="voice-1" class="voice-btn active">
+                        <i class="fa-solid fa-microphone"></i> Voz 1 (Natural)
+                    </button>
+                    <button id="voice-2" class="voice-btn">
+                        <i class="fa-solid fa-microphone-lines"></i> Voz 2 (Alternativa)
+                    </button>
+                </div>
+            </div>
+
             <!-- Spelling Action Buttons -->
             <div class="action-grid">
                 <button id="btn-speak" class="btn btn-accent">
@@ -102,7 +115,7 @@
                     <span>Hablar / Confirmar</span>
                 </button>
                 <button id="btn-add" class="btn btn-primary">
-                    <i class="fa-solid fa-plus-circle"></i>
+                    <i class="fa-solid fa-square-plus"></i>
                     <span>Añadir</span>
                 </button>
                 <button id="btn-backspace" class="btn btn-secondary">
@@ -119,6 +132,10 @@
             <div class="phrase-card">
                 <div class="phrase-header">
                     <span class="hud-label">FRASE ACUMULADA</span>
+                    <div class="punc-group">
+                        <button id="btn-question" class="punc-btn" title="Pregunta">¿?</button>
+                        <button id="btn-exclamation" class="punc-btn" title="Exclamación">¡!</button>
+                    </div>
                     <button id="btn-speak-phrase" class="phrase-speak-btn" disabled>
                         <i class="fa-solid fa-circle-play"></i> Escuchar todo
                     </button>

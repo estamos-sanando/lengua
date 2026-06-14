@@ -65,6 +65,8 @@ let currentWord = [];
 let phrase = [];
 let suggestion = null;
 
+let activeVoiceProfile = 1;            // 1: Voz Natural (Estándar), 2: Voz Alternativa (Aguda)
+
 let isFrontCamera = true;
 let activeStream = null;
 let cameraHelper = null;
@@ -385,11 +387,28 @@ function updateDetectionHUD(letter, conf) {
 // ==========================================================================
 //  Spelling and Lexicon Logic
 // ==========================================================================
-function addCurrentLetter() {
-    if (currentLetter === "-") return;
+
+// Add current word to the phrase card (silent confirmation)
+function addWordToPhrase() {
+    if (currentWord.length === 0) return;
     
-    currentWord.push(currentLetter);
+    let word = currentWord.join("");
+    if (suggestion) {
+        word = suggestion;
+    }
+    
+    phrase.push(word);
+    
+    updatePhraseDisplay();
+    
+    // Reset word in progress silently (no TTS speak)
+    currentWord = [];
+    suggestion = null;
     updateWordDisplay();
+    
+    // Reset duplicate block to spell immediately if needed
+    lastAddedLetter = null;
+    
     triggerHapticFeedback();
 }
 
@@ -436,52 +455,113 @@ function updateWordDisplay() {
     }
 }
 
-// Confirm the spelled word, speak it, and add to phrase
-function confirmAndSpeakWord() {
-    if (currentWord.length === 0) return;
-    
-    let word = currentWord.join("");
-    // Use autocorrect suggestion if available
-    if (suggestion) {
-        word = suggestion;
+// Speak the whole phrase (Añade palabra actual si queda alguna en curso)
+function speakWholePhrase() {
+    if (currentWord.length > 0) {
+        let word = currentWord.join("");
+        if (suggestion) word = suggestion;
+        phrase.push(word);
+        
+        currentWord = [];
+        suggestion = null;
+        updateWordDisplay();
+        lastAddedLetter = null;
     }
     
-    phrase.push(word);
+    if (phrase.length === 0) return;
     
-    // Update phrase card
+    updatePhraseDisplay();
+    
+    speakText(phrase.join(" "));
+    triggerHapticFeedback();
+}
+
+// Punctuation support: wraps phrase in ¿?
+function toggleQuestionMarks() {
+    if (phrase.length === 0) return;
+    let phraseStr = phrase.join(" ");
+    
+    if (phraseStr.startsWith("¿") && phraseStr.endsWith("?")) {
+        // Remove question marks
+        phrase[0] = phrase[0].substring(1);
+        const lastIdx = phrase.length - 1;
+        phrase[lastIdx] = phrase[lastIdx].slice(0, -1);
+    } else {
+        // Strip exclamation marks if present first
+        if (phraseStr.startsWith("¡") && phraseStr.endsWith("!")) {
+            phrase[0] = phrase[0].substring(1);
+            const lastIdx = phrase.length - 1;
+            phrase[lastIdx] = phrase[lastIdx].slice(0, -1);
+        }
+        // Add question marks
+        phrase[0] = "¿" + phrase[0];
+        phrase[phrase.length - 1] = phrase[phrase.length - 1] + "?";
+    }
+    
+    updatePhraseDisplay();
+    triggerHapticFeedback();
+}
+
+// Punctuation support: wraps phrase in ¡!
+function toggleExclamationMarks() {
+    if (phrase.length === 0) return;
+    let phraseStr = phrase.join(" ");
+    
+    if (phraseStr.startsWith("¡") && phraseStr.endsWith("!")) {
+        // Remove exclamation marks
+        phrase[0] = phrase[0].substring(1);
+        const lastIdx = phrase.length - 1;
+        phrase[lastIdx] = phrase[lastIdx].slice(0, -1);
+    } else {
+        // Strip question marks if present first
+        if (phraseStr.startsWith("¿") && phraseStr.endsWith("?")) {
+            phrase[0] = phrase[0].substring(1);
+            const lastIdx = phrase.length - 1;
+            phrase[lastIdx] = phrase[lastIdx].slice(0, -1);
+        }
+        // Add exclamation marks
+        phrase[0] = "¡" + phrase[0];
+        phrase[phrase.length - 1] = phrase[phrase.length - 1] + "!";
+    }
+    
+    updatePhraseDisplay();
+    triggerHapticFeedback();
+}
+
+function updatePhraseDisplay() {
     const phraseDisplay = document.getElementById("phrase-display");
     phraseDisplay.innerText = phrase.join(" ");
     phraseDisplay.classList.add("active");
     document.getElementById("btn-speak-phrase").disabled = false;
-    
-    // Trigger TTS
-    speakText(word);
-    
-    // Reset word in progress
-    currentWord = [];
-    suggestion = null;
-    updateWordDisplay();
-    triggerHapticFeedback();
-}
-function speakWholePhrase() {
-    if (phrase.length === 0) return;
-    speakText(phrase.join(" "));
 }
 
-// Mobile-friendly Speech Synthesis
+// Mobile-friendly Speech Synthesis with 2 voice models choice
 function speakText(text) {
     if (!('speechSynthesis' in window)) return;
     
     window.speechSynthesis.cancel(); // cancel previous speech
-    const utterance = new SpeechSynthesisUtterance(text.toLowerCase());
+    const utterance = new SpeechSynthesisUtterance(text); // No lowercasing, so synthesis respects ¿? punctuation prosody
     utterance.lang = "es-ES";
-    utterance.rate = 0.95;
     
-    // Prefer Spanish voices
-    const voices = window.speechSynthesis.getVoices();
-    const esVoice = voices.find(v => v.lang.startsWith("es"));
-    if (esVoice) {
-        utterance.voice = esVoice;
+    const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith("es"));
+    
+    if (activeVoiceProfile === 1) {
+        // Model 1: Standard/Natural Voice
+        if (voices.length > 0) {
+            utterance.voice = voices[0];
+        }
+        utterance.pitch = 1.0;
+        utterance.rate = 0.92;
+    } else {
+        // Model 2: Alternative Voice (Tonal shift: High-pitched & slightly faster)
+        if (voices.length > 1) {
+            utterance.voice = voices[1];
+        } else if (voices.length > 0) {
+            utterance.voice = voices[0];
+        }
+        // Apply pitch shift to create a clearly distinct voice profile
+        utterance.pitch = 1.35; 
+        utterance.rate = 1.05;
     }
     
     window.speechSynthesis.speak(utterance);
@@ -541,11 +621,35 @@ function triggerHapticFeedback() {
 // ==========================================================================
 function setupUIListeners() {
     // Action Buttons
-    document.getElementById("btn-add").addEventListener("click", addCurrentLetter);
+    document.getElementById("btn-add").addEventListener("click", addWordToPhrase);
     document.getElementById("btn-backspace").addEventListener("click", backspaceWord);
-    document.getElementById("btn-speak").addEventListener("click", confirmAndSpeakWord);
+    document.getElementById("btn-speak").addEventListener("click", speakWholePhrase);
     document.getElementById("btn-clear").addEventListener("click", clearSpelling);
     document.getElementById("btn-speak-phrase").addEventListener("click", speakWholePhrase);
+    
+    // Punctuation Toggles
+    document.getElementById("btn-question").addEventListener("click", toggleQuestionMarks);
+    document.getElementById("btn-exclamation").addEventListener("click", toggleExclamationMarks);
+
+    // Voice Selector Buttons
+    const v1Btn = document.getElementById("voice-1");
+    const v2Btn = document.getElementById("voice-2");
+
+    v1Btn.addEventListener("click", () => {
+        activeVoiceProfile = 1;
+        v1Btn.classList.add("active");
+        v2Btn.classList.remove("active");
+        triggerHapticFeedback();
+        speakText("Modelo de voz uno activado");
+    });
+
+    v2Btn.addEventListener("click", () => {
+        activeVoiceProfile = 2;
+        v2Btn.classList.add("active");
+        v1Btn.classList.remove("active");
+        triggerHapticFeedback();
+        speakText("Modelo de voz dos activado");
+    });
     
     // Auto-fill suggestion when tapped
     document.getElementById("suggestion-box").addEventListener("click", () => {
