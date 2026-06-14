@@ -55,9 +55,11 @@ let session = null;
 let currentLetter = "-";
 let currentConfidence = 0.0;
 let predictionBuffer = [];
-const BUFFER_SIZE = 15;
-const STABILITY_THRESHOLD = 0.65;
-const CONFIDENCE_THRESHOLD = 0.70;
+const BUFFER_SIZE = 8;                 // Reducido de 15 a 8 para reaccionar al instante
+const STABILITY_THRESHOLD = 0.60;      // Reducido a 60% (basta con 5/8 frames)
+const CONFIDENCE_THRESHOLD = 0.50;     // Reducido a 50% (>50% de confianza)
+let lastAddedLetter = null;            // Control de duplicados automático
+let noHandFrames = 0;                  // Contador para reiniciar lastAddedLetter al retirar la mano
 
 let currentWord = [];
 let phrase = [];
@@ -301,8 +303,15 @@ function updateDetectionHUD(letter, conf) {
         currentLetter = "-";
         currentConfidence = 0.0;
         predictionBuffer = []; // Clear buffer if hand is lost
+        
+        noHandFrames++;
+        if (noHandFrames > 5) {
+            lastAddedLetter = null; // Permitir deletrear la misma letra de nuevo al retirar la mano
+        }
         return;
     }
+
+    noHandFrames = 0; // Mano detectada, reiniciar contador de ausencia
 
     // Add prediction to buffer for stability
     predictionBuffer.push(conf >= CONFIDENCE_THRESHOLD ? letter : null);
@@ -331,10 +340,27 @@ function updateDetectionHUD(letter, conf) {
         currentLetter = stableLetter;
         currentConfidence = conf;
         
-        // Render letter Ñ with custom visual line if needed, 
-        // but since HTML supports Ñ native, we just render it!
         letterDiv.innerText = currentLetter;
         letterDiv.style.color = "#94ff00";
+
+        // AUTO-CONFIRMACIÓN (Añadir automáticamente si es una letra nueva)
+        if (currentLetter !== lastAddedLetter) {
+            currentWord.push(currentLetter);
+            updateWordDisplay();
+            lastAddedLetter = currentLetter;
+            
+            // Efecto visual de destello neón en la tarjeta de detección
+            const letterCard = document.querySelector(".detected-letter-card");
+            if (letterCard) {
+                letterCard.style.boxShadow = "0 0 25px rgba(148, 255, 0, 0.8)";
+                letterCard.style.borderColor = "var(--accent)";
+                setTimeout(() => {
+                    letterCard.style.boxShadow = "";
+                    letterCard.style.borderColor = "";
+                }, 350);
+            }
+            triggerHapticFeedback();
+        }
     } else {
         // Unstable, but show current frame candidate in dim color
         letterDiv.innerText = letter;
