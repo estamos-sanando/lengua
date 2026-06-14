@@ -400,23 +400,24 @@ body {
 /* Action Buttons Grid */
 .action-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
 }
 
 .btn {
     border-radius: 14px;
     border: 1px solid var(--border-color);
-    padding: 12px;
-    font-size: 14px;
+    padding: 10px 4px;
+    font-size: 11px;
     font-weight: 600;
     font-family: var(--font-primary);
     color: #fff;
     cursor: pointer;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 5px;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -428,9 +429,11 @@ body {
     background: linear-gradient(135deg, #7cb342, #558b2f);
     border-color: #9ccc65;
     box-shadow: 0 4px 15px rgba(124, 179, 66, 0.25);
-    grid-column: span 2; /* Main spelling button span */
-    padding: 15px;
-    font-size: 16px;
+    grid-column: span 4; /* Ocupa toda la fila */
+    flex-direction: row; /* Horizontal para el principal */
+    padding: 13px;
+    font-size: 15px;
+    gap: 8px;
 }
 
 .btn-primary:active {
