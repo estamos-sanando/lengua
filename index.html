@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SignSpeak Mobile - Lengua de Señas</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- MediaPipe & ONNX Runtime CDNs -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Status Bar (iOS/Android styled) -->
+        <header class="app-header">
+            <div class="brand">
+                <i class="fa-solid fa-hand-sparkles brand-logo"></i>
+                <div class="brand-text">
+                    <h1>SignSpeak</h1>
+                    <span class="status-badge"><span class="pulse-dot"></span>En Vivo</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button id="btn-camera-toggle" class="header-btn" title="Cambiar Cámara">
+                    <i class="fa-solid fa-camera-rotate"></i>
+                </button>
+                <button id="btn-help" class="header-btn" title="Guía de Señas">
+                    <i class="fa-solid fa-book-open"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Video Panel -->
+        <main class="video-panel">
+            <div class="camera-container">
+                <video id="webcam" autoplay playsinline muted></video>
+                <canvas id="skeleton-canvas"></canvas>
+                
+                <div id="loading-overlay" class="overlay">
+                    <div class="spinner"></div>
+                    <p id="loading-status">Cargando Inteligencia Artificial...</p>
+                </div>
+
+                <div id="no-hand-alert" class="hud-alert">
+                    <i class="fa-solid fa-hand"></i> Coloca tu mano frente a la cámara
+                </div>
+            </div>
+        </main>
+
+        <!-- Information & Spelling Control Panel -->
+        <section class="control-panel">
+            <!-- Detection HUD -->
+            <div class="hud-row">
+                <div class="detected-letter-card">
+                    <span class="hud-label">DETECTADO</span>
+                    <div class="letter-value" id="current-letter">-</div>
+                </div>
+                <div class="confidence-card">
+                    <span class="hud-label">CONFIANZA</span>
+                    <div class="confidence-value" id="confidence-percentage">0%</div>
+                    <div class="progress-track">
+                        <div class="progress-bar" id="confidence-bar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Spelled Word Box -->
+            <div class="word-card">
+                <span class="hud-label">PALABRA EN CURSO</span>
+                <div class="word-display" id="word-display">· · ·</div>
+                <div id="suggestion-box" class="suggestion-box hidden">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>¿Quisiste decir <strong id="suggestion-text"></strong>?</span>
+                </div>
+            </div>
+
+            <!-- Spelling Action Buttons -->
+            <div class="action-grid">
+                <button id="btn-add" class="btn btn-primary">
+                    <i class="fa-solid fa-plus-circle"></i>
+                    <span>Añadir</span>
+                </button>
+                <button id="btn-backspace" class="btn btn-secondary">
+                    <i class="fa-solid fa-delete-left"></i>
+                    <span>Borrar</span>
+                </button>
+                <button id="btn-speak" class="btn btn-accent">
+                    <i class="fa-solid fa-volume-high"></i>
+                    <span>Hablar</span>
+                </button>
+                <button id="btn-clear" class="btn btn-danger">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>Limpiar</span>
+                </button>
+            </div>
+
+            <!-- Accumulated Phrase Section -->
+            <div class="phrase-card">
+                <div class="phrase-header">
+                    <span class="hud-label">FRASE ACUMULADA</span>
+                    <button id="btn-speak-phrase" class="phrase-speak-btn" disabled>
+                        <i class="fa-solid fa-circle-play"></i> Escuchar todo
+                    </button>
+                </div>
+                <div class="phrase-display" id="phrase-display">Tu frase aparecerá aquí...</div>
+            </div>
+        </section>
+
+        <!-- Interactive Guide Modal -->
+        <div id="guide-modal" class="modal hidden">
+            <div class="modal-content">
+                <header class="modal-header">
+                    <h2><i class="fa-solid fa-book-open"></i> Guía del Alfabeto</h2>
+                    <button id="btn-close-guide" class="modal-close"><i class="fa-solid fa-xmark"></i></button>
+                </header>
+                <div class="modal-body">
+                    <p class="guide-intro">Toca cualquier letra para ver su guía visual y descripción gestual.</p>
+                    <div class="guide-grid" id="guide-grid">
+                        <!-- Dynamic items will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
