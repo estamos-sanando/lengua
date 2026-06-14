@@ -17,6 +17,18 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+    <script>
+        // Manejador global de errores de depuración
+        window.onerror = function(message, source, lineno, colno, error) {
+            const statusText = document.getElementById("loading-status");
+            if (statusText) {
+                statusText.innerHTML = `<span style="color: #ff5252; font-weight: 600;">Error de JS: ${message}<br><small style="color: #a0a0b0; font-size: 11px;">${source.split('/').pop()}:${lineno}</small></span>`;
+                const spinner = document.querySelector(".spinner");
+                if (spinner) spinner.style.borderTopColor = "#ff5252";
+            }
+            return false;
+        };
+    </script>
 </head>
 <body>
     <div class="app-container">
@@ -131,5 +143,7 @@
             </div>
         </div>
     </div>
+    <!-- Script principal de la aplicación -->
+    <script src="app.js"></script>
 </body>
 </html>
