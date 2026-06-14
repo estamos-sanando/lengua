@@ -463,38 +463,6 @@ function confirmAndSpeakWord() {
     updateWordDisplay();
     triggerHapticFeedback();
 }
-
-// Confirm word silently and add a space in the phrase (Space button)
-function confirmWordWithSpace() {
-    if (currentWord.length === 0) {
-        triggerHapticFeedback();
-        return;
-    }
-    
-    let word = currentWord.join("");
-    if (suggestion) {
-        word = suggestion;
-    }
-    
-    phrase.push(word);
-    
-    // Update phrase card
-    const phraseDisplay = document.getElementById("phrase-display");
-    phraseDisplay.innerText = phrase.join(" ");
-    phraseDisplay.classList.add("active");
-    document.getElementById("btn-speak-phrase").disabled = false;
-    
-    // Reset word in progress silently (no TTS speak)
-    currentWord = [];
-    suggestion = null;
-    updateWordDisplay();
-    
-    // Reset duplicate block to spell immediately if needed
-    lastAddedLetter = null;
-    
-    triggerHapticFeedback();
-}
-
 function speakWholePhrase() {
     if (phrase.length === 0) return;
     speakText(phrase.join(" "));
@@ -575,7 +543,6 @@ function setupUIListeners() {
     // Action Buttons
     document.getElementById("btn-add").addEventListener("click", addCurrentLetter);
     document.getElementById("btn-backspace").addEventListener("click", backspaceWord);
-    document.getElementById("btn-space").addEventListener("click", confirmWordWithSpace);
     document.getElementById("btn-speak").addEventListener("click", confirmAndSpeakWord);
     document.getElementById("btn-clear").addEventListener("click", clearSpelling);
     document.getElementById("btn-speak-phrase").addEventListener("click", speakWholePhrase);

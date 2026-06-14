@@ -400,15 +400,15 @@ body {
 /* Action Buttons Grid */
 .action-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
 }
 
 .btn {
-    border-radius: 14px;
+    border-radius: 16px;
     border: 1px solid var(--border-color);
-    padding: 10px 4px;
-    font-size: 11px;
+    padding: 12px 6px;
+    font-size: 12px;
     font-weight: 600;
     font-family: var(--font-primary);
     color: #fff;
@@ -417,57 +417,81 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 5px;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    gap: 6px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn i {
-    font-size: 16px;
+    font-size: 18px;
+}
+
+.btn:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.btn:active {
+    transform: translateY(0) scale(0.97);
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #7cb342, #558b2f);
-    border-color: #9ccc65;
-    box-shadow: 0 4px 15px rgba(124, 179, 66, 0.25);
-    grid-column: span 4; /* Ocupa toda la fila */
-    flex-direction: row; /* Horizontal para el principal */
-    padding: 13px;
-    font-size: 15px;
-    gap: 8px;
+    background: linear-gradient(135deg, rgba(124, 179, 66, 0.15), rgba(85, 139, 47, 0.15));
+    border-color: rgba(156, 204, 101, 0.3);
+    color: #aed581;
 }
 
-.btn-primary:active {
-    transform: scale(0.98);
-    background: #558b2f;
+.btn-primary:hover {
+    background: linear-gradient(135deg, #7cb342, #558b2f);
+    border-color: #9ccc65;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(124, 179, 66, 0.35);
 }
 
 .btn-secondary {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.04);
 }
 
-.btn-secondary:active {
-    background: rgba(255, 255, 255, 0.12);
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--text-secondary);
 }
 
 .btn-accent {
-    background: linear-gradient(135deg, #00b0ff, #0081cb);
+    background: linear-gradient(135deg, #00b0ff, #00e5ff);
     border-color: #40c4ff;
-    box-shadow: 0 4px 15px rgba(0, 176, 255, 0.25);
+    grid-column: span 3; /* Ocupa las 3 columnas superiores */
+    flex-direction: row; /* Horizontal para el principal */
+    padding: 16px;
+    font-size: 16px;
+    gap: 10px;
+    font-weight: 700;
+    color: #09090e;
+    box-shadow: 0 4px 20px rgba(0, 229, 255, 0.25);
 }
 
-.btn-accent:active {
-    transform: scale(0.98);
-    background: #0081cb;
+.btn-accent i {
+    font-size: 20px;
+}
+
+.btn-accent:hover {
+    background: linear-gradient(135deg, #00e5ff, #00b0ff);
+    box-shadow: 0 6px 25px rgba(0, 229, 255, 0.45);
+    border-color: #e0f7fa;
+    transform: translateY(-2px);
 }
 
 .btn-danger {
     background: rgba(255, 23, 68, 0.05);
-    border-color: rgba(255, 23, 68, 0.3);
+    border-color: rgba(255, 23, 68, 0.25);
     color: #ff8a80;
 }
 
-.btn-danger:active {
-    background: rgba(255, 23, 68, 0.15);
+.btn-danger:hover {
+    background: linear-gradient(135deg, #ff1744, #d50000);
+    border-color: #ff5252;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(255, 23, 68, 0.35);
+}
 }
 
 /* Phrase Display Card */
