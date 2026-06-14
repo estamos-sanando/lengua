@@ -57,7 +57,7 @@ let currentConfidence = 0.0;
 let predictionBuffer = [];
 const BUFFER_SIZE = 8;                 // Reducido de 15 a 8 para reaccionar al instante
 const STABILITY_THRESHOLD = 0.60;      // Reducido a 60% (basta con 5/8 frames)
-const CONFIDENCE_THRESHOLD = 0.50;     // Reducido a 50% (>50% de confianza)
+const CONFIDENCE_THRESHOLD = 0.80;     // Incrementado a 80% de confianza para mayor precisión
 let lastAddedLetter = null;            // Control de duplicados automático
 let noHandFrames = 0;                  // Contador para reiniciar lastAddedLetter al retirar la mano
 
