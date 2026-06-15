@@ -45,6 +45,9 @@
                 <button id="btn-camera-toggle" class="header-btn" title="Cambiar Cámara">
                     <i class="fa-solid fa-camera-rotate"></i>
                 </button>
+                <button id="btn-onboarding-info" class="header-btn" title="Instrucciones y Accesibilidad">
+                    <i class="fa-solid fa-circle-info"></i>
+                </button>
                 <button id="btn-help" class="header-btn" title="Guía de Señas">
                     <i class="fa-solid fa-book-open"></i>
                 </button>
@@ -54,6 +57,7 @@
         <!-- Main Video Panel -->
         <main class="video-panel">
             <div class="camera-container">
+                <div id="visual-flash-overlay" class="visual-flash-overlay"></div>
                 <video id="webcam" autoplay playsinline muted></video>
                 <canvas id="skeleton-canvas"></canvas>
                 
@@ -155,6 +159,175 @@
                     <p class="guide-intro">Toca cualquier letra para ver su guía visual y descripción gestual.</p>
                     <div class="guide-grid" id="guide-grid">
                         <!-- Dynamic items will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Onboarding & Welcome Overlay -->
+        <div id="onboarding-overlay" class="onboarding-overlay">
+            <div class="onboarding-card">
+                <!-- Progress Bar for AI Loading (in Onboarding screen) -->
+                <div class="onboarding-progress-container">
+                    <div class="progress-info">
+                        <span class="loading-label"><i class="fa-solid fa-cpu"></i> IA de Reconocimiento</span>
+                        <span id="onboarding-ai-status" class="loading-detail">Cargando modelo...</span>
+                    </div>
+                    <div class="onboarding-progress-track">
+                        <div id="onboarding-progress-bar" class="onboarding-progress-bar"></div>
+                    </div>
+                </div>
+
+                <!-- Carousel Slides -->
+                <div class="onboarding-slides">
+                    <!-- Slide 1: Welcome & Profile Selection -->
+                    <div class="onboarding-slide active" data-step="1">
+                        <div class="slide-illustration">
+                            <i class="fa-solid fa-hand-holding-hand welcome-icon"></i>
+                        </div>
+                        <h2>¡Te damos la bienvenida!</h2>
+                        <p class="slide-desc">SignSpeak traduce señas a texto y voz localmente. Selecciona tu perfil para preconfigurar la app:</p>
+                        
+                        <div class="profile-options">
+                            <button class="profile-btn active" id="prof-sign">
+                                <i class="fa-solid fa-hands-asl-interpreting"></i>
+                                <div class="prof-text">
+                                    <strong>Quiero expresarme (hacer señas)</strong>
+                                    <span>Para comunicarte: activa la vibración y destellos en pantalla al confirmar señas.</span>
+                                </div>
+                            </button>
+                            <button class="profile-btn" id="prof-listen">
+                                <i class="fa-solid fa-volume-high"></i>
+                                <div class="prof-text">
+                                    <strong>Quiero escuchar (interpretar)</strong>
+                                    <span>Para aprender o leer señas: activa el audio y la voz en automático.</span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Slide 2: Hand Position Tips -->
+                    <div class="onboarding-slide" data-step="2">
+                        <div class="slide-illustration">
+                            <i class="fa-solid fa-circle-info tips-icon"></i>
+                        </div>
+                        <h2>¿Cómo hacer las señas?</h2>
+                        <p class="slide-desc">Sigue estos tres consejos para que el sistema reconozca tu mano al instante:</p>
+                        <ul class="tips-list">
+                            <li>
+                                <div class="tip-icon"><i class="fa-solid fa-expand"></i></div>
+                                <div class="tip-content">
+                                    <strong>Distancia adecuada</strong>
+                                    <span>Ubica tu mano a una distancia de 30 a 50 cm de la cámara.</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="tip-icon"><i class="fa-solid fa-sun"></i></div>
+                                <div class="tip-content">
+                                    <strong>Buena iluminación</strong>
+                                    <span>Evita contraluces fuertes o habitaciones con demasiada sombra.</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="tip-icon"><i class="fa-solid fa-hand"></i></div>
+                                <div class="tip-content">
+                                    <strong>Mano firme y centrada</strong>
+                                    <span>Realiza la forma de la letra claramente frente a la lente.</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Slide 3: Spelling & Corrections -->
+                    <div class="onboarding-slide" data-step="3">
+                        <div class="slide-illustration">
+                            <i class="fa-solid fa-wand-magic-sparkles spell-icon"></i>
+                        </div>
+                        <h2>Deletreo y Edición</h2>
+                        <p class="slide-desc">Aprende a comunicarte construyendo palabras de manera interactiva:</p>
+                        <ul class="tips-list">
+                            <li>
+                                <div class="tip-icon"><i class="fa-solid fa-clock"></i></div>
+                                <div class="tip-content">
+                                    <strong>Confirmación automática</strong>
+                                    <span>Mantén la seña por 1 segundo y la letra se escribirá sola.</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="tip-icon"><i class="fa-solid fa-spell-check"></i></div>
+                                <div class="tip-content">
+                                    <strong>Autocorrector inteligente</strong>
+                                    <span>Si deletreas mal, toca la sugerencia azul mágica para corregir.</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="tip-icon"><i class="fa-solid fa-bullhorn"></i></div>
+                                <div class="tip-content">
+                                    <strong>Hablar / Confirmar</strong>
+                                    <span>Pulsa el botón grande azul para reproducir la frase por voz.</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Slide 4: Custom Settings -->
+                    <div class="onboarding-slide" data-step="4">
+                        <div class="slide-illustration">
+                            <i class="fa-solid fa-sliders settings-icon"></i>
+                        </div>
+                        <h2>Ajustes de Accesibilidad</h2>
+                        <p class="slide-desc">Personaliza los canales de comunicación según tus necesidades:</p>
+                        
+                        <div class="access-settings">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <strong class="setting-title"><i class="fa-solid fa-mobile-screen-button"></i> Vibración Táctil</strong>
+                                    <span class="setting-desc">Vibrar al confirmar cada letra detectada.</span>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="opt-vibrate" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <strong class="setting-title"><i class="fa-solid fa-bolt"></i> Destellos Visuales</strong>
+                                    <span class="setting-desc">Borde neón parpadea al confirmar seña.</span>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="opt-flash" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <strong class="setting-title"><i class="fa-solid fa-volume-low"></i> Voz Automática</strong>
+                                    <span class="setting-desc">Pronunciar palabras inmediatamente al crearse.</span>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="opt-autospeak">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Onboarding Footer -->
+                <div class="onboarding-footer">
+                    <div class="step-dots">
+                        <span class="dot active"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+                    
+                    <div class="nav-buttons">
+                        <button id="btn-onboarding-prev" class="onb-btn btn-sec hidden">Anterior</button>
+                        <button id="btn-onboarding-next" class="onb-btn btn-pri">Siguiente</button>
+                        <button id="btn-onboarding-start" class="onb-btn btn-accent-onb hidden">Comenzar</button>
                     </div>
                 </div>
             </div>

@@ -731,10 +731,484 @@ body {
     justify-content: center;
     transition: all 0.2s ease;
 }
-
 .punc-btn:hover, .punc-btn:active {
     background: rgba(0, 220, 255, 0.08);
     border-color: var(--accent2);
     color: var(--accent2);
     box-shadow: 0 0 8px rgba(0, 220, 255, 0.2);
+}
+
+/* ==========================================================================
+   Visual Flash & Letter Cards Spark Animation
+   ========================================================================== */
+.visual-flash-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    pointer-events: none;
+    z-index: 3;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.visual-flash-overlay.flash-active {
+    background-color: rgba(148, 255, 0, 0.12);
+    box-shadow: inset 0 0 35px rgba(148, 255, 0, 0.6);
+}
+
+/* ==========================================================================
+   Onboarding Welcome Portal Overlay
+   ========================================================================== */
+.onboarding-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(6, 6, 10, 0.95);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 1;
+    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.onboarding-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.onboarding-card {
+    width: 100%;
+    height: 100%;
+    max-height: 560px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: rgba(18, 18, 28, 0.85);
+    border: 1px solid var(--border-color);
+    border-radius: 28px;
+    padding: 24px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+    overflow: hidden;
+    position: relative;
+}
+
+/* Onboarding Loading IA Progress */
+.onboarding-progress-container {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 10px 14px;
+    margin-bottom: 15px;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.loading-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.loading-detail {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.onboarding-progress-track {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.onboarding-progress-bar {
+    height: 100%;
+    width: 15%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 10px;
+    transition: width 0.4s cubic-bezier(0.1, 0.8, 0.25, 1);
+    box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.onboarding-progress-bar.loaded {
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+}
+
+/* Slides structure */
+.onboarding-slides {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.onboarding-slide {
+    display: none;
+    opacity: 0;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    animation: slideFadeIn 0.3s forwards ease;
+}
+
+.onboarding-slide.active {
+    display: flex;
+    opacity: 1;
+}
+
+@keyframes slideFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Illustrations & Icons */
+.slide-illustration {
+    width: 80px;
+    height: 80px;
+    border-radius: 24px;
+    background: rgba(0, 220, 255, 0.08);
+    border: 1px solid rgba(0, 220, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin-bottom: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.welcome-icon { color: var(--accent2); text-shadow: 0 0 15px var(--accent2-glow); }
+.tips-icon { color: var(--warning); text-shadow: 0 0 15px rgba(255, 179, 0, 0.4); }
+.spell-icon { color: var(--accent); text-shadow: 0 0 15px var(--accent-glow); }
+.settings-icon { color: var(--text-primary); }
+
+.onboarding-slide h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #fff;
+}
+
+.slide-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin-bottom: 16px;
+}
+
+/* Profiles Layout */
+.profile-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    margin-top: 5px;
+}
+
+.profile-btn {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 12px 16px;
+    text-align: left;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-btn i {
+    font-size: 24px;
+    color: var(--text-muted);
+    width: 30px;
+    text-align: center;
+    transition: color 0.25s;
+}
+
+.prof-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.prof-text strong {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.prof-text span {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.3;
+}
+
+.profile-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.profile-btn.active {
+    background: rgba(0, 220, 255, 0.08);
+    border-color: var(--accent2);
+    box-shadow: 0 0 15px rgba(0, 220, 255, 0.15);
+}
+
+.profile-btn.active i {
+    color: var(--accent2);
+    text-shadow: 0 0 10px var(--accent2-glow);
+}
+
+/* Tips list styles */
+.tips-list {
+    width: 100%;
+    list-style: none;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tips-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.tip-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent2);
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.tip-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.tip-content strong {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.tip-content span {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.35;
+}
+
+/* Access settings toggles */
+.access-settings {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-align: left;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    padding: 12px 16px;
+    border-radius: 16px;
+    gap: 14px;
+}
+
+.setting-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.setting-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.setting-title i {
+    color: var(--accent);
+}
+
+.setting-desc {
+    font-size: 10px;
+    color: var(--text-secondary);
+    line-height: 1.3;
+}
+
+/* Toggle Switches */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: .3s;
+    border-radius: 24px;
+    border: 1px solid var(--border-color);
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #fff;
+    transition: .3s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--accent);
+    border-color: var(--accent);
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+/* Onboarding footer dots & nav */
+.onboarding-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.step-dots {
+    display: flex;
+    gap: 8px;
+}
+
+.step-dots .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.2s ease;
+}
+
+.step-dots .dot.active {
+    background: var(--accent2);
+    width: 18px;
+    border-radius: 10px;
+}
+
+.nav-buttons {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.onb-btn {
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 12px 18px;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: var(--font-primary);
+}
+
+.btn-sec {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-secondary);
+    flex: 1;
+}
+
+.btn-sec:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.btn-pri {
+    background: var(--accent2);
+    border-color: var(--accent2);
+    color: #09090e;
+    flex: 1;
+    box-shadow: 0 4px 12px rgba(0, 220, 255, 0.2);
+}
+
+.btn-pri:hover {
+    background: #00b0ff;
+    box-shadow: 0 6px 16px rgba(0, 220, 255, 0.4);
+}
+
+.btn-accent-onb {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #09090e;
+    flex: 1;
+    font-weight: 700;
+    box-shadow: 0 4px 15px var(--accent-glow);
+    animation: onbPulse 2s infinite;
+}
+
+.btn-accent-onb:hover {
+    box-shadow: 0 6px 20px rgba(148, 255, 0, 0.6);
+}
+
+@keyframes onbPulse {
+    0% { box-shadow: 0 0 10px rgba(148, 255, 0, 0.4); }
+    50% { box-shadow: 0 0 20px rgba(148, 255, 0, 0.8); }
+    100% { box-shadow: 0 0 10px rgba(148, 255, 0, 0.4); }
 }
