@@ -74,197 +74,13 @@ let cameraHelper = null;
 let handsDetector = null;
 
 // ==========================================================================
-//  Onboarding & Accessibility Preferences System
-// ==========================================================================
-let onboardingStep = 1;
-const totalSteps = 4;
-let isModelReady = false;
-
-function loadOnboardingPreferences() {
-    const saved = localStorage.getItem("signspeak_preferences");
-    if (saved) {
-        try {
-            const prefs = JSON.parse(saved);
-            
-            // Set checkbox states
-            document.getElementById("opt-vibrate").checked = prefs.vibrate;
-            document.getElementById("opt-flash").checked = prefs.flash;
-            document.getElementById("opt-autospeak").checked = prefs.autoSpeak;
-            
-            // Update profile UI
-            setActiveProfileUI(prefs.profile);
-        } catch (e) {
-            console.error("Error loading preferences:", e);
-        }
-    } else {
-        // Set default profile
-        setActiveProfileUI('sign');
-    }
-}
-
-function saveOnboardingPreferences() {
-    const prefs = {
-        vibrate: document.getElementById("opt-vibrate").checked,
-        flash: document.getElementById("opt-flash").checked,
-        autoSpeak: document.getElementById("opt-autospeak").checked,
-        profile: document.getElementById("prof-sign").classList.contains("active") ? 'sign' : 'listen'
-    };
-    localStorage.setItem("signspeak_preferences", JSON.stringify(prefs));
-    localStorage.setItem("signspeak_onboarded", "true");
-}
-
-function setActiveProfileUI(profile) {
-    const btnSign = document.getElementById("prof-sign");
-    const btnListen = document.getElementById("prof-listen");
-    
-    const optVibrate = document.getElementById("opt-vibrate");
-    const optFlash = document.getElementById("opt-flash");
-    const optAutoSpeak = document.getElementById("opt-autospeak");
-
-    if (profile === 'sign' || profile === 'deaf') {
-        btnSign.classList.add("active");
-        btnListen.classList.remove("active");
-        
-        optVibrate.checked = true;
-        optFlash.checked = true;
-        optAutoSpeak.checked = false;
-    } else {
-        btnListen.classList.add("active");
-        btnSign.classList.remove("active");
-        
-        optVibrate.checked = false;
-        optFlash.checked = false;
-        optAutoSpeak.checked = true;
-    }
-}
-
-function updateOnboardingSlides() {
-    const slides = document.querySelectorAll(".onboarding-slide");
-    slides.forEach(slide => {
-        slide.classList.remove("active");
-        if (parseInt(slide.getAttribute("data-step")) === onboardingStep) {
-            slide.classList.add("active");
-        }
-    });
-
-    const dots = document.querySelectorAll(".step-dots .dot");
-    dots.forEach((dot, idx) => {
-        if (idx + 1 === onboardingStep) {
-            dot.classList.add("active");
-        } else {
-            dot.classList.remove("active");
-        }
-    });
-
-    const btnPrev = document.getElementById("btn-onboarding-prev");
-    const btnNext = document.getElementById("btn-onboarding-next");
-    const btnStart = document.getElementById("btn-onboarding-start");
-
-    if (onboardingStep === 1) {
-        btnPrev.classList.add("hidden");
-    } else {
-        btnPrev.classList.remove("hidden");
-    }
-
-    if (onboardingStep === totalSteps) {
-        btnNext.classList.add("hidden");
-        btnStart.classList.remove("hidden");
-        
-        if (!isModelReady) {
-            btnStart.innerText = "Cargando IA...";
-            btnStart.style.opacity = "0.7";
-            btnStart.style.cursor = "not-allowed";
-        } else {
-            btnStart.innerText = "Comenzar";
-            btnStart.style.opacity = "1";
-            btnStart.style.cursor = "pointer";
-        }
-    } else {
-        btnNext.classList.remove("hidden");
-        btnStart.classList.add("hidden");
-    }
-}
-
-function setupOnboardingUI() {
-    loadOnboardingPreferences();
-
-    document.getElementById("prof-sign").addEventListener("click", () => {
-        setActiveProfileUI('sign');
-        triggerHapticFeedback(true);
-    });
-    
-    document.getElementById("prof-listen").addEventListener("click", () => {
-        setActiveProfileUI('listen');
-        triggerHapticFeedback(true);
-    });
-
-    document.getElementById("btn-onboarding-next").addEventListener("click", () => {
-        if (onboardingStep < totalSteps) {
-            onboardingStep++;
-            updateOnboardingSlides();
-            triggerHapticFeedback(true);
-        }
-    });
-
-    document.getElementById("btn-onboarding-prev").addEventListener("click", () => {
-        if (onboardingStep > 1) {
-            onboardingStep--;
-            updateOnboardingSlides();
-            triggerHapticFeedback(true);
-        }
-    });
-
-    document.getElementById("btn-onboarding-start").addEventListener("click", async () => {
-        if (onboardingStep === totalSteps) {
-            if (!isModelReady) return;
-            
-            saveOnboardingPreferences();
-            
-            const overlay = document.getElementById("onboarding-overlay");
-            overlay.classList.add("hidden");
-            
-            await initWebcam();
-            triggerHapticFeedback(true);
-            
-            const isSignMode = document.getElementById("prof-sign").classList.contains("active");
-            if (!isSignMode) {
-                speakText("Asistente activado. Coloca tu mano frente a la cámara.");
-            }
-        }
-    });
-
-    // Reopen helper from info button in header
-    document.getElementById("btn-onboarding-info").addEventListener("click", () => {
-        onboardingStep = 1;
-        updateOnboardingSlides();
-        
-        const overlay = document.getElementById("onboarding-overlay");
-        overlay.classList.remove("hidden");
-        
-        const btnStart = document.getElementById("btn-onboarding-start");
-        btnStart.innerText = "Listo";
-        
-        triggerHapticFeedback(true);
-    });
-}
-
-// ==========================================================================
 //  Initialization
 // ==========================================================================
 document.addEventListener("DOMContentLoaded", async () => {
     setupUIListeners();
-    setupOnboardingUI();
     buildGuideGrid();
-    
-    // Cargar modelo de IA en segundo plano al abrir la página
     await initAIModel();
-
-    // Si ya completó el onboarding anteriormente, entrar directamente e iniciar cámara
-    if (localStorage.getItem("signspeak_onboarded") === "true") {
-        const overlay = document.getElementById("onboarding-overlay");
-        if (overlay) overlay.classList.add("hidden");
-        await initWebcam();
-    }
+    await initWebcam();
 });
 
 // ==========================================================================
@@ -272,43 +88,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 // ==========================================================================
 async function initAIModel() {
     const statusText = document.getElementById("loading-status");
-    const onbStatusText = document.getElementById("onboarding-ai-status");
-    const onbProgressBar = document.getElementById("onboarding-progress-bar");
-    
-    function updateProgress(percentage, text) {
-        if (statusText) statusText.innerText = text;
-        if (onbStatusText) onbStatusText.innerText = text;
-        if (onbProgressBar) {
-            onbProgressBar.style.width = `${percentage}%`;
-            if (percentage === 100) {
-                onbProgressBar.classList.add("loaded");
-            }
-        }
-    }
-
     try {
-        updateProgress(25, "Conectando al modelo...");
+        if (statusText) statusText.innerText = "Cargando Red Neuronal...";
         // Load the ONNX model from the server
         session = await ort.InferenceSession.create("modelo_abecedario.onnx");
         console.log("ONNX model loaded successfully.");
         
-        updateProgress(65, "Cargando MediaPipe Hands...");
+        if (statusText) statusText.innerText = "Cargando MediaPipe Hands...";
         initMediaPipe();
-        
-        updateProgress(100, "¡Asistente de IA Listo!");
-        isModelReady = true;
-        
-        // Habilitar botón de ingreso si ya está en la última diapositiva
-        const btnStart = document.getElementById("btn-onboarding-start");
-        if (btnStart && onboardingStep === totalSteps) {
-            btnStart.innerText = "Comenzar";
-            btnStart.style.opacity = "1";
-            btnStart.style.cursor = "pointer";
-        }
     } catch (err) {
         console.error("Failed to load ONNX model:", err);
-        updateProgress(100, "Error cargando modelo de IA.");
-        if (onbStatusText) onbStatusText.style.color = "#ff5252";
+        if (statusText) statusText.innerText = "Error cargando modelo. Revisa la consola.";
     }
 }
 
@@ -580,16 +370,12 @@ function updateDetectionHUD(letter, conf) {
             }
 
             // Destello visual en el visor de la cámara
-            const flashOpt = document.getElementById("opt-flash");
-            const isFlashEnabled = flashOpt ? flashOpt.checked : true;
-            if (isFlashEnabled) {
-                const flashOverlay = document.getElementById("visual-flash-overlay");
-                if (flashOverlay) {
-                    flashOverlay.classList.add("flash-active");
-                    setTimeout(() => {
-                        flashOverlay.classList.remove("flash-active");
-                    }, 250);
-                }
+            const flashOverlay = document.getElementById("visual-flash-overlay");
+            if (flashOverlay) {
+                flashOverlay.classList.add("flash-active");
+                setTimeout(() => {
+                    flashOverlay.classList.remove("flash-active");
+                }, 250);
             }
             
             triggerHapticFeedback();
@@ -882,12 +668,9 @@ function getLevenshteinDistance(a, b) {
     return matrix[b.length][a.length];
 }
 
-// Vibration feedback on touch (if device supports it and user option is enabled)
-function triggerHapticFeedback(force = false) {
-    const vibrateOpt = document.getElementById("opt-vibrate");
-    const isVibrateEnabled = vibrateOpt ? vibrateOpt.checked : true;
-    
-    if ((isVibrateEnabled || force) && 'vibrate' in navigator) {
+// Vibration feedback on touch (if device supports it)
+function triggerHapticFeedback() {
+    if ('vibrate' in navigator) {
         navigator.vibrate(15);
     }
 }
